@@ -2,7 +2,7 @@
 
 Um cantinho de histórias para o Felipe ler com a Mary antes de dormir. O site combina uma biblioteca de historinhas com uma experiência de leitura acolhedora, tema escuro inspirado na Kuromi e uma identidade feita especialmente para ela.
 
-> **Projeto estático:** não precisa de servidor, banco de dados, instalação de dependências ou processo de build. Os arquivos podem ser publicados diretamente pelo GitHub Pages.
+> **Frontend estático:** a página pode ser publicada diretamente pelo GitHub Pages. A sincronização entre dispositivos usa uma API Node.js no Vercel, conectada ao MongoDB Atlas; essa parte é opcional para quem só quer usar o site em um aparelho. Não há cadastro individual no site; o responsável ainda precisa de um projeto de hospedagem para a API.
 
 ## Recursos
 
@@ -11,6 +11,7 @@ Um cantinho de histórias para o Felipe ler com a Mary antes de dormir. O site c
 - Botão para sortear uma história, dando preferência às que ainda não foram lidas.
 - Leitor com navegação entre histórias, tempo estimado, contagem de palavras e ajuste do tamanho do texto.
 - Memória das histórias lidas e barra de progresso salvas no navegador.
+- Sincronização opcional entre dispositivos por uma coleção compartilhada protegida por uma chave, sem cadastro no site.
 - Abertura animada com a Kuromi, animações na interface e som sintetizado ao clicar em botões e links.
 - Layout adaptável a celulares e computadores; as animações respeitam a preferência de movimento reduzido do dispositivo.
 
@@ -20,6 +21,8 @@ Um cantinho de histórias para o Felipe ler com a Mary antes de dormir. O site c
 - [Google Fonts](https://fonts.google.com/): Lexend e Baloo 2.
 - [Font Awesome](https://fontawesome.com/): ícones.
 - [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API): som de clique gerado no navegador.
+- [Vercel Functions](https://vercel.com/docs/functions): API privada para leitura e gravação do progresso.
+- [MongoDB Node.js Driver](https://www.mongodb.com/docs/drivers/node/): persistência compartilhada das histórias lidas.
 
 ## Arquivos do projeto
 
@@ -29,6 +32,10 @@ Um cantinho de histórias para o Felipe ler com a Mary antes de dormir. O site c
 ├── style.css                  # Tema, layout, animações e responsividade
 ├── script.js                  # Busca, filtros, leitura, memórias e som
 ├── stories-data.js            # Catálogo de histórias em JavaScript
+├── sync-config.js             # URL pública da API de sincronização
+├── api/
+│   └── progress.js            # API Vercel que acessa o MongoDB no servidor
+├── package.json               # Dependência do driver MongoDB
 ├── scripts/
 │   └── import_corujita.py     # Ferramenta opcional para atualizar o catálogo
 └── assets/                    # Pasta para imagens e outros arquivos locais
@@ -93,13 +100,44 @@ O importador precisa de acesso à internet. Ele consulta o sitemap e as páginas
 
 O conteúdo do Corujita foi incluído com a autorização de uso informada pelo autor. Cada história mantém um link para sua página de origem. Ao republicar ou atualizar o catálogo, preserve os créditos e confirme que a autorização continua válida.
 
-## Memórias de leitura e privacidade
+## Sincronizar leituras entre dispositivos com MongoDB
 
-O site não tem conta, servidor ou banco de dados. As histórias marcadas como lidas ficam no `localStorage` do navegador e do dispositivo em que foram lidas. Portanto:
+O GitHub Pages entrega arquivos estáticos e não consegue conectar com segurança ao MongoDB diretamente. A API `api/progress.js` faz essa conexão no servidor do Vercel, mantendo a URI do Atlas fora do código público. Os dispositivos compartilham uma única coleção de progresso, sem conta ou senha no site; a sincronização ocorre automaticamente ao abrir a página e ao marcar uma história como lida.
 
-- A memória não sincroniza entre aparelhos ou navegadores.
-- Limpar os dados do site no navegador apaga as histórias marcadas como lidas.
-- O catálogo e os arquivos enviados a um repositório público ficam acessíveis a qualquer pessoa.
+### 1. Troque a senha do usuário MongoDB
+
+A URI MongoDB compartilhada durante a configuração deve ser tratada como exposta. No MongoDB Atlas, abra **Database Access** e troque a senha desse usuário (ou crie outro usuário de banco). Dê a ele apenas permissão de leitura e gravação no banco `sonhos_da_mary`. Use a nova URI somente como variável privada no Vercel; não a coloque em `sync-config.js`, no GitHub ou no frontend.
+
+### 2. Publique a API no Vercel
+
+1. Importe este repositório em um projeto Vercel. O Vercel detecta a função dentro de `api/` e instala o driver descrito em `package.json`.
+2. Em **Project → Settings → Environment Variables**, crie estas variáveis:
+
+   | Nome | Valor |
+   | --- | --- |
+   | `MONGODB_URI` | URI MongoDB com a senha nova, só no ambiente do servidor |
+   | `MONGODB_DB` | `sonhos_da_mary` |
+   | `ALLOWED_ORIGINS` | `https://maryprincesa.fun,https://www.maryprincesa.fun,https://fuckingyourlife.github.io` |
+
+   Para testar a partir de `http://localhost:8000`, inclua esse endereço em `ALLOWED_ORIGINS`, separado por vírgula. A página aberta como `file://` não pode chamar a API por causa das regras de origem do navegador.
+3. No **Network Access** do Atlas, autorize conexões de saída da função Vercel. Mantenha a autenticação do usuário de banco ativa.
+4. Implante ou faça novo deploy para aplicar as variáveis. Copie o endereço público do projeto, por exemplo `https://SEU-PROJETO.vercel.app`.
+
+O Vercel mantém variáveis de ambiente no servidor e as funções dentro de `api/` são publicadas como endpoints. Veja a documentação de [Vercel Functions](https://vercel.com/docs/functions/runtimes/node-js) e [variáveis de ambiente](https://vercel.com/docs/environment-variables/managing-environment-variables).
+
+### 3. Conecte o frontend à API
+
+No arquivo `sync-config.js`, informe o endereço da função:
+
+```js
+window.MARY_SYNC_API_URL = 'https://SEU-PROJETO.vercel.app/api/progress';
+```
+
+Envie essa alteração ao GitHub Pages. Depois do deploy, os aparelhos mesclam automaticamente o progresso local com a coleção do MongoDB, sem pedir senha ou exigir clique para sincronizar.
+
+As leituras antigas do aparelho são mescladas à coleção na primeira conexão. Novas leituras são gravadas no MongoDB e continuam disponíveis depois de trocar ou limpar o navegador. O botão **Desconectar dispositivo** remove a chave salva apenas daquele aparelho; não apaga o progresso no banco.
+
+Como o site não pede conta nem senha, o endpoint de progresso é público para leitura e gravação. A API aceita somente os IDs das histórias existentes e apenas acrescenta leituras; alguém que descubra o endereço ainda pode marcar histórias como lidas para todos. O CORS restringe o uso normal por outros sites, mas não substitui autenticação contra chamadas diretas. A URI e a senha do MongoDB permanecem privadas no Vercel e nunca são enviadas ao navegador.
 
 ## Créditos e direitos
 
@@ -107,5 +145,6 @@ O site não tem conta, servidor ou banco de dados. As histórias marcadas como l
 - As histórias do Corujita mantêm seus respectivos links de origem e são usadas com a autorização informada pelo autor.
 - Kuromi e demais personagens Sanrio pertencem à [Sanrio](https://www.sanrio.com/). Os stickers animados são carregados do [GIPHY](https://giphy.com/sanrio_kuromi).
 - As fontes e os ícones são servidos por Google Fonts e Font Awesome.
+- A sincronização entre dispositivos depende da API no Vercel, do MongoDB Atlas e do endereço da API configurados pelo responsável pelo site.
 
 Este repositório não inclui um arquivo de licença. A publicação do código no GitHub, por si só, não concede licença para reutilizar histórias, imagens, marcas ou outros materiais de terceiros.

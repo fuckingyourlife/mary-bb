@@ -20,6 +20,8 @@ let readIds = new Set(loadReadIds().filter(id => validStoryIds.has(id)));
 let filter = 'Todas';
 let activeStory = null;
 let readingSize = 16;
+const syncApiUrl = String(window.MARY_SYNC_API_URL || '').replace(/\/+$/, '');
+let cloudSyncBusy = false;
 
 function loadReadIds() {
   try {
@@ -27,6 +29,10 @@ function loadReadIds() {
     return Array.isArray(ids) ? ids : [];
   }
   catch { return []; }
+}
+
+function saveReadIds() {
+  localStorage.setItem(KEY, JSON.stringify([...readIds]));
 }
 
 function escapeHTML(value) {
@@ -149,6 +155,61 @@ function randomStory() {
   openStory(pool[Math.floor(Math.random() * pool.length)].id);
 }
 
+function reportSyncError(error) {
+  console.error('Falha na sincronização das leituras:', error);
+}
+
+async function requestCloud(method = 'GET', storyIds = []) {
+  const response = await fetch(syncApiUrl, {
+    method,
+    headers: {
+      ...(method === 'POST' ? { 'Content-Type': 'application/json' } : {}),
+    },
+    ...(method === 'POST' ? { body: JSON.stringify({ storyIds }) } : {}),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || `Erro do servidor (${response.status})`);
+  return result;
+}
+
+async function pushReadsToCloud(ids) {
+  const validIds = [...new Set(ids.filter(id => validStoryIds.has(id)))];
+  if (!syncApiUrl || !validIds.length) return;
+  await requestCloud('POST', validIds);
+}
+
+async function syncCloudProgress() {
+  if (!syncApiUrl || cloudSyncBusy) return false;
+  cloudSyncBusy = true;
+  try {
+    const data = await requestCloud('GET');
+    const remoteIds = new Set((data.storyIds || []).filter(id => validStoryIds.has(id)));
+    const localOnly = [...readIds].filter(id => validStoryIds.has(id) && !remoteIds.has(id));
+    readIds = new Set([...readIds, ...remoteIds].filter(id => validStoryIds.has(id)));
+    saveReadIds();
+    render();
+    await pushReadsToCloud(localOnly);
+    return true;
+  } catch (error) {
+    reportSyncError(error);
+    return false;
+  } finally {
+    cloudSyncBusy = false;
+  }
+}
+
+function setupCloudSync() {
+  if (!syncApiUrl) return;
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) void syncCloudProgress();
+  });
+  window.setInterval(() => {
+    if (!document.hidden) void syncCloudProgress();
+  }, 15000);
+  // Shared progress is merged automatically when the site opens; no device login is needed.
+  void syncCloudProgress();
+}
+
 filters.addEventListener('click', event => {
   const button = event.target.closest('[data-filter]');
   if (!button) return;
@@ -175,8 +236,9 @@ document.getElementById('markRead').addEventListener('click', () => {
   if (!activeStory) return;
   const isNew = !readIds.has(activeStory.id);
   readIds.add(activeStory.id);
-  localStorage.setItem(KEY, JSON.stringify([...readIds]));
+  saveReadIds();
   render();
+  if (syncApiUrl) void pushReadsToCloud([activeStory.id]).catch(reportSyncError);
   closeReader();
   if (isNew) {
     const toast = document.getElementById('toast');
@@ -186,6 +248,7 @@ document.getElementById('markRead').addEventListener('click', () => {
 });
 
 render();
+setupCloudSync();
 
 let clickAudioContext;
 function playClickSound() {
