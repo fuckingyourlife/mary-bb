@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR" class="is-loading">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#1e1629" />
+  <meta name="description" content="Um cantinho de histórias mágicas para Mary dormir sorrindo." />
+  <title>Boa noite, Mary ✦ Histórias para sonhar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="kuromi-loader" id="kuromiLoader" role="status" aria-label="Preparando o cantinho de sonhos da Mary">
+    <div class="loader-orbit orbit-one" aria-hidden="true"></div><div class="loader-orbit orbit-two" aria-hidden="true"></div>
+    <div class="loader-center"><img src="https://media1.giphy.com/media/l2FSi4zPU5dnLyd7Q4/giphy.gif" alt="Kuromi" fetchpriority="high"><span>Preparando sonhos para Mary</span><div class="loader-dots" aria-hidden="true"><i></i><i></i><i></i></div></div>
+    <span class="loader-star loader-star-one" aria-hidden="true">✦</span><span class="loader-star loader-star-two" aria-hidden="true">✧</span><span class="loader-star loader-star-three" aria-hidden="true">✦</span>
+  </div>
+  <div class="sky" aria-hidden="true"><span class="moon"></span><span class="star s1">✦</span><span class="star s2">✧</span><span class="star s3">✦</span><span class="star s4">✧</span><span class="star s5">✦</span><span class="sparkle sp1">✧</span><span class="sparkle sp2">✦</span></div>
+  <header class="topbar"><a class="brand" href="#inicio"><span class="brand-mark"><i class="fa-solid fa-moon"></i></span><span>sonhos da <b>mary</b></span></a><nav><a href="#inicio">Início</a><a href="#historias">Histórias</a><a href="#sobre">Nosso cantinho</a></nav></header>
+  <main>
+    <section class="hero" id="inicio"><div class="hero-copy"><div class="eyebrow"><span class="eyebrow-dot"></span> um carinho antes de dormir</div><h1>Era uma vez,<br>uma <span>Mary</span>…</h1><p class="hero-text">…que merecia as histórias mais bonitas do mundo. Escolha uma aventura, aconchegue-se e deixe os sonhos fazerem o resto.</p><div class="hero-actions"><a class="button button-primary" href="#historias"><i class="fa-solid fa-book-open"></i> Escolher uma história</a><button class="button button-ghost" id="heroRandom"><i class="fa-solid fa-shuffle"></i> Me surpreenda</button></div><div class="hero-note"><span class="tiny-heart">♥</span> Feito pelo Felipe, especialmente para você</div></div><div class="hero-art" aria-label="Ilustração de uma lua crescente e coelhinho gótico fofo"><div class="art-orbit orbit-a"></div><div class="art-orbit orbit-b"></div><div class="art-moon"><i class="fa-solid fa-moon"></i></div><div class="bunny"><div class="ear ear-left"></div><div class="ear ear-right"></div><div class="bunny-head"><div class="hood-point"></div><div class="hood-skull">☠</div><div class="face"><i class="eye eye-left"></i><i class="eye eye-right"></i><i class="cheek cheek-left"></i><i class="cheek cheek-right"></i><i class="mouth"></i></div></div><div class="bunny-body"><span>♥</span></div></div><span class="art-caption">uma guardiã dos sonhos ✧</span><span class="art-star star-a">✦</span><span class="art-star star-b">✧</span></div><div class="scroll-hint"><span></span> desça para descobrir</div></section>
+    <section class="dashboard" id="historias"><div class="section-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span> biblioteca da mary</div><h2>Qual vai ser a <span>aventura</span> de hoje?</h2><p>Todo o acervo de histórias do Corujita para ler juntinhos antes de dormir.</p></div><button class="button button-random" id="randomStory"><i class="fa-solid fa-dice"></i> Sortear história</button></div>
+      <div class="progress-card"><div class="progress-icon"><i class="fa-solid fa-book-bookmark"></i></div><div class="progress-copy"><strong>Sua coleção de sonhos</strong><span id="progressText">Você ainda não leu nenhuma história. Que tal começar?</span></div><div class="progress-count"><b id="readCount">0</b><span>lidas</span></div><div class="progress-track"><span id="progressBar"></span></div></div>
+      <div class="filters" id="filters"><label class="search"><i class="fa-solid fa-magnifying-glass"></i><input id="search" type="search" placeholder="Procurar uma história..." aria-label="Procurar uma história"></label></div>
+      <div class="story-grid" id="storyGrid"></div><div class="empty-state" id="emptyState" hidden><span>☾</span><strong>Nenhuma história por aqui ainda</strong><p>Tente mudar o filtro ou buscar outro nome.</p></div>
+    </section>
+    <section class="love-note" id="sobre"><div class="note-stars">✧　✦　✧</div><div class="note-heart">♥</div><p>“Que a última coisa que você sinta antes de dormir<br>seja o quanto é amada.”</p><span>com todo o meu amor, para a Mary</span><div class="note-stars">✧　♡　✧</div></section>
+  </main>
+  <footer><a class="brand" href="#inicio"><span class="brand-mark"><i class="fa-solid fa-moon"></i></span><span>sonhos da <b>mary</b></span></a><p>Um universo pequenininho, feito pelo Felipe com muito amor para Mary <i class="fa-solid fa-heart"></i></p><span class="footer-credit">Conteúdo Corujita usado com autorização do autor · Kuromi © Sanrio · GIFs oficiais <a href="https://giphy.com/sanrio_kuromi" target="_blank" rel="noopener noreferrer">@sanrio_kuromi no GIPHY</a></span></footer>
+  <div class="reader" id="reader" aria-hidden="true"><div class="reader-backdrop" data-close></div><article class="reader-panel" id="readerPanel">
+    <div class="reader-progress-track"><span id="readerProgressFill"></span></div>
+    <button class="reader-close" data-close aria-label="Fechar história"><i class="fa-solid fa-xmark"></i></button>
+    <div class="reader-topline"><div class="reader-brand"><img src="https://media1.giphy.com/media/l2FSi4zPU5dnLyd7Q4/giphy.gif" alt="Kuromi animada" loading="lazy"><div><span>cantinho da Mary</span><small>hora de sonhar <i class="fa-solid fa-moon"></i></small></div></div><span class="reader-time" id="readerTime">5 min de leitura</span></div>
+    <div class="reader-heading"><span class="reader-category" id="readerCategory">✦ Historinha</span><h2 id="readerTitle"></h2><div class="reader-byline">uma história para a Mary <span>♥</span></div><div class="reader-meta"><span><i class="fa-regular fa-clock"></i> <span id="readerMetaTime">5 min</span></span><span class="reader-meta-dot">✦</span><span><i class="fa-solid fa-book-open"></i> <span id="readerWordCount">0 palavras</span></span><span class="reader-progress-label" id="readerProgressLabel">0% lido</span></div></div>
+    <div class="reader-illustration" id="readerIllustration">☾</div>
+    <div class="reader-tools"><span><i class="fa-solid fa-feather-pointed"></i> ajuste a leitura</span><div><button type="button" data-font-step="-1" aria-label="Diminuir tamanho do texto">A−</button><button type="button" data-font-step="1" aria-label="Aumentar tamanho do texto">A+</button></div></div>
+    <div class="reader-content" id="readerContent"></div><div class="reader-source" id="readerSource"></div>
+    <div class="reader-end"><span>✧</span><p>Boa noite, Mary.<br><b>Sonhe bonito. Eu te amo.</b></p><span>✧</span></div>
+    <div class="reader-actions"><button class="reader-nav" id="previousStory"><i class="fa-solid fa-arrow-left"></i><span>Anterior</span></button><button class="button button-primary reader-done" id="markRead"><i class="fa-solid fa-check"></i> Terminei de ler</button><button class="reader-nav next" id="nextStory"><span>Próxima</span><i class="fa-solid fa-arrow-right"></i></button></div>
+    <div class="reader-signoff"><img src="https://media1.giphy.com/media/l2FSi4zPU5dnLyd7Q4/giphy.gif" alt="Kuromi animada" loading="lazy"><i class="fa-solid fa-skull"></i> Kuromi deseja bons sonhos para Mary <i class="fa-solid fa-star"></i></div>
+  </article></div>
+  <div class="toast" id="toast"><i class="fa-solid fa-heart"></i><span>História guardada nas suas memórias!</span></div>
+  <script src="stories-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
